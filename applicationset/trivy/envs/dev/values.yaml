@@ -1,0 +1,6 @@
+trivy:
+  mode: Standalone
+  storageClassEnabled: false
+
+operator:
+  replicas: 1
