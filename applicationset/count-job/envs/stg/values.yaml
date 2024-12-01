@@ -2,5 +2,5 @@ job:
   name: count-to-10000
   image:
     repository: busybox
-    tag: latest
+    tag: stable-glibc
   backoffLimit: 1
