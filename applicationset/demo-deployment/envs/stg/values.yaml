@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: nginx
-  tag: "alpine3.20-otel"
+  tag: "alpine3.20"
   pullPolicy: IfNotPresent
 
 service:
