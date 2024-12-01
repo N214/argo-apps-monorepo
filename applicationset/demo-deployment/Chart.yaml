@@ -1,5 +1,6 @@
 apiVersion: v2
-name: count-to-10000
-description: A Helm chart for deploying a Kubernetes deployment
+name: nginx-chart
+description: A Helm chart for deploying an Nginx application
+type: application
 version: 0.1.0
-appVersion: 1.0.0
+appVersion: "1.25.0"
