@@ -1,0 +1,5 @@
+apiVersion: v2
+name: count-to-10000
+description: A Helm chart for deploying a Kubernetes deployment
+version: 0.1.0
+appVersion: 1.0.0

@@ -1,7 +1,0 @@
-trivy:
-  mode: Standalone
-  storageClassEnabled: false
-  tag: 0.45.0
-
-operator:
-  replicas: 1
