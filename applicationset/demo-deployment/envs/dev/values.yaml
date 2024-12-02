@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: nginx
-  tag: "alpine3.20"
+  tag: "alpine3.20-slim"
   pullPolicy: IfNotPresent
 
 service:
