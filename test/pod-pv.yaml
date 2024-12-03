@@ -1,0 +1,52 @@
+# pv.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: fixed-pv-name  # Fixed name managed by ArgoCD
+  labels:
+    argocd.argoproj.io/managed-by: argocd  # Optional label for clarity
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc-delete
+  persistentVolumeReclaimPolicy: Delete
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-048436351f1169b4e
+---
+# pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-pvc
+  labels:
+    argocd.argoproj.io/managed-by: argocd  # Optional label for clarity
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: efs-sc-delete
+  volumeName: fixed-pv-name  # Explicit binding to the PV
+---
+# pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox-pod
+  namespace: default
+spec:
+  containers:
+    - name: busybox
+      image: busybox
+      command: ["sh", "-c", "sleep 3600"]
+      volumeMounts:
+        - name: efs-volume
+          mountPath: /mnt/efs
+  volumes:
+    - name: efs-volume
+      persistentVolumeClaim:
+        claimName: efs-pvc-test
