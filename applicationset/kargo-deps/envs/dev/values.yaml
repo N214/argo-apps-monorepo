@@ -1,3 +1,8 @@
 cert-manager:
+  enabled: true
   crds:
+    enabled: true
+argo-rollout:
+  enabled: true
+  dashboard:
     enabled: true
