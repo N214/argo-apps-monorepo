@@ -2,7 +2,7 @@ cert-manager:
   enabled: true
   crds:
     enabled: true
-argo-rollout:
+argo-rollouts:
   enabled: true
   dashboard:
     enabled: true

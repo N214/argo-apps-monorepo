@@ -9,8 +9,8 @@ dependencies:
   repository: https://charts.jetstack.io
   alias: cert-manager
   condition: cert-manager.enabled
-- name: argo-rollout
+- name: argo-rollouts
   version: 2.38.1
   repository: https://argoproj.github.io/argo-helm
-  alias: argo-rollout
+  alias: argo-rollouts
   condition: argo-rollout.enabled
