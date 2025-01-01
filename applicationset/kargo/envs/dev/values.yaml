@@ -6,6 +6,8 @@ argo-rollouts:
   enabled: true
   dashboard:
     enabled: true
+    logging:
+      level: debug
 kargo:
   api:
     adminAccount:
