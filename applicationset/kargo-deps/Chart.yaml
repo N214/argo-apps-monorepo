@@ -13,4 +13,4 @@ dependencies:
   version: 2.38.1
   repository: https://argoproj.github.io/argo-helm
   alias: argo-rollouts
-  condition: argo-rollout.enabled
+  condition: argo-rollouts.enabled
