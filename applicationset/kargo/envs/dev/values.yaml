@@ -6,3 +6,11 @@ argo-rollouts:
   enabled: true
   dashboard:
     enabled: true
+kargo:
+  api:
+    argocd:
+      urls:
+        "":  "https://localhost:8080"
+  controller:
+    argocd:
+      namespace: default

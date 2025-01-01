@@ -1,5 +1,5 @@
 apiVersion: v2
-name: kargo-deps
+name: kargo
 type: application
 version: 0.1.0
 
@@ -14,3 +14,8 @@ dependencies:
   repository: https://argoproj.github.io/argo-helm
   alias: argo-rollouts
   condition: argo-rollouts.enabled
+- name: kargo
+  version: 1.1.2
+  repository: oci://ghcr.io/akuity/kargo-charts
+  alias: kargo
+  condition: argo-rollouts.enabled,cert-manager.enabled
