@@ -5,4 +5,4 @@ redis:
 nginx:
   enabled: false
   pdb:
-    create: false
+    create: true
