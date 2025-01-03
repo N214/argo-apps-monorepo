@@ -1,0 +1,1075 @@
+---
+# Source: kargo-multi/charts/nginx/templates/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: kargo-multi-nginx
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: 1.27.2
+    helm.sh/chart: nginx-18.2.5
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: nginx
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    - ports:
+        - port: 8080
+        - port: 8443
+---
+# Source: kargo-multi/charts/redis/templates/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: kargo-multi-redis
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: redis
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    # Allow inbound connections
+    - ports:
+        - port: 6379
+---
+# Source: kargo-multi/charts/nginx/templates/pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kargo-multi-nginx
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: 1.27.2
+    helm.sh/chart: nginx-18.2.5
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: nginx
+---
+# Source: kargo-multi/charts/redis/templates/master/pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kargo-multi-redis-master
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+    app.kubernetes.io/component: master
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: master
+---
+# Source: kargo-multi/charts/redis/templates/replicas/pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: kargo-multi-redis-replicas
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+    app.kubernetes.io/component: replica
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: replica
+---
+# Source: kargo-multi/charts/nginx/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kargo-multi-nginx
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: 1.27.2
+    helm.sh/chart: nginx-18.2.5
+automountServiceAccountToken: false
+---
+# Source: kargo-multi/charts/redis/templates/master/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: false
+metadata:
+  name: kargo-multi-redis-master
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+---
+# Source: kargo-multi/charts/redis/templates/replicas/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: false
+metadata:
+  name: kargo-multi-redis-replica
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+---
+# Source: kargo-multi/charts/nginx/templates/tls-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kargo-multi-nginx-tls
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: 1.27.2
+    helm.sh/chart: nginx-18.2.5
+type: kubernetes.io/tls
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURyVENDQXBXZ0F3SUJBZ0lSQUpVd1BNNXJldVE2VXlPOHNHeklkdWd3RFFZSktvWklodmNOQVFFTEJRQXcKRXpFUk1BOEdBMVVFQXhNSWJtZHBibmd0WTJFd0hoY05NalV3TVRBek1UZ3pOVEl6V2hjTk1qWXdNVEF6TVRnegpOVEl6V2pBY01Sb3dHQVlEVlFRREV4RnJZWEpuYnkxdGRXeDBhUzF1WjJsdWVEQ0NBU0l3RFFZSktvWklodmNOCkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFPUXg5TTBWWGdhak9IK0NOM1J3bWFLNWIzK1pHZW8za1ljc1R1a1gKbGVKb3duRUVSSTlLL2wvdEhDaTA4UmdyMVZnaGdpeVZhYVpkanlJZHBKQlFMajAybnpPTmtnaEtUam1GZ3dUYgo0UFBXK3R5NjluVmswSVMxUC9kSkFibW5ydkJnY0RIRWJPb2EzcHFNdnlyS0Z6NUdZdWxTWlVmOG0ycWx0M01sCmRvZFJKTVh4YWdKQURUREdFU3hsM2xsMXhpM2ozc29wK1FDRk9sekp4M0hJSEpRWjBSUjdCMlJGQ0tueTUxaU8KYW1KOERTMkRCbFJSMlNUNHJKemtBWERqUGE0RGQrS1NRSnFBWWlwTks5bzNSbzhXQjQyc3Vmb1pqTFhwK05segp5TWdxYjIzaThPbzFNeWVRZis0QnJvQXRKMnozMnp3b2RHNVhQbjc0dHdMY1pSRUNBd0VBQWFPQjhqQ0I3ekFPCkJnTlZIUThCQWY4RUJBTUNCYUF3SFFZRFZSMGxCQll3RkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01Bd0cKQTFVZEV3RUIvd1FDTUFBd0h3WURWUjBqQkJnd0ZvQVVsamR2b2J3NGlMd00xWEQzRVEycm1ya2tMeXd3Z1k0RwpBMVVkRVFTQmhqQ0JnNElSYTJGeVoyOHRiWFZzZEdrdGJtZHBibmlDSEd0aGNtZHZMVzExYkhScExXNW5hVzU0CkxtdGhjbWR2TFdSbGJXK0NJR3RoY21kdkxXMTFiSFJwTFc1bmFXNTRMbXRoY21kdkxXUmxiVzh1YzNaamdpNXIKWVhKbmJ5MXRkV3gwYVMxdVoybHVlQzVyWVhKbmJ5MWtaVzF2TG5OMll5NWpiSFZ6ZEdWeUxteHZZMkZzTUEwRwpDU3FHU0liM0RRRUJDd1VBQTRJQkFRQlJ1OFJNYzFjbVFlWVBGa1dXVDF2TG1NZnc2bTJtWHR3SzVwQUVPQkJECm90ZUlpRllIQnViVE1VUUJpQUI4ME5CTnZMaENWSjNhcWo5eXRYZnhXL2Q4ZHhRbHRscjBGYVNZbE5jL2NNQXEKNWZjeHFmOTUxTXNBcHRVYUV2NkVrQTlkcnNBdmV1RTZseXQ2eEh4UjdjOUg3dElDakhMS2V2cHRVYVdwV1RQVQovRGQvNjYwWU82RVdZMFRXeXBFRXhMbmc0YkZGaEc3RHE4Z3RKYWp2Njh5SjBMVnhsOW40ajJxVWl3WWEzNkJ3CmdNUU1hWmo3VERkOWRPLzczTmZqdEo3OEZRTFpKcUZFQ3IrUlJ3WG1nQnpxZjNINlJIMU5DazNSa3ZrNzYyZTEKeFEvckVPNkIxcTFISFMyMmNpL3RNei9mRmZ0SmFLYkVxeXEzdk5NeWNpMkMKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBNURIMHpSVmVCcU00ZjRJM2RIQ1pvcmx2ZjVrWjZqZVJoeXhPNlJlVjRtakNjUVJFCmowcitYKzBjS0xUeEdDdlZXQ0dDTEpWcHBsMlBJaDJra0ZBdVBUYWZNNDJTQ0VwT09ZV0RCTnZnODliNjNMcjIKZFdUUWhMVS85MGtCdWFldThHQndNY1JzNmhyZW1veS9Lc29YUGtaaTZWSmxSL3liYXFXM2N5VjJoMUVreGZGcQpBa0FOTU1ZUkxHWGVXWFhHTGVQZXlpbjVBSVU2WE1uSGNjZ2NsQm5SRkhzSFpFVUlxZkxuV0k1cVlud05MWU1HClZGSFpKUGlzbk9RQmNPTTlyZ04zNHBKQW1vQmlLazByMmpkR2p4WUhqYXk1K2htTXRlbjQyWFBJeUNwdmJlTHcKNmpVeko1Qi83Z0d1Z0MwbmJQZmJQQ2gwYmxjK2Z2aTNBdHhsRVFJREFRQUJBb0lCQUF4c2E5ZCtnay82TXVrKwpQYWFwT3JRUlJIQzk5UnM3UzBFQXVJc1lMYURWODBBVDYyZWh2WmViWVIwV1BNb0VHT2xqYWFManY0eS9LenZBClFXVlorQ3A4L3MzZnQwT2NTQVg1cnRoazRDcG1XZUlLaThCNGJLSE0vRjZLS3YzZ2t6V2pDbmlyS1FMVjA2aTIKWVBJRGJxQ0ZWSDAvYnlRc0xJbngyN3I1SHlyZXRjQmJTVnIrZ0dmQ1lHZ2tiWnhTK0VjcXVadnUwM256L25XbwoxZEl6YnAwZndsbGJFL2pjWXpqMGNVc2FjbTF5Tk16cndkNTJhaW9MZjhEcW9yNGlQRkRBUitDWmNHckp5bjhjCjZoL1ZFMndmNm40ejBFdGtSSFRudWFNZFV5aGJkRFlHMXJ4NlBkcHVXR3VwNUFTcXNGbXJ0UTY0MUlOOW1acHYKSFNrSGdBRUNnWUVBOERpOVovMEFmc3JRVmZRdVFmcFpUa1RleFhYQWZWb09CUlc1QjZDM0VRL3RrVExJQnFvWgo5bUxpeCtHeGx5YzFCcndqQ2JEbGNUNzZ6a2hEM2lJaUpJUHRYLzA2WFY2dUpIdW80UkVHRlVNZVJGbDZCV0QxCk12ZUtZdXNYT2c1cmxjZzc5bHdvcG0zMDc4aDQyOGYwMEhXaTBrSkUweXFUUHZiVk1LN3JlWkVDZ1lFQTh5NysKZ1A3eDB0UDNjUDU0b2c2MTk4SEY1MzBpV2JxWDVWL01NZEt5Mmh6NG9NNWVQbStHQ3dHaVZFM1hReXJmaTZ2aAp5N0NhMnFuajZPdHA2NU5HcVppSmE2S3FlQ3NFWDN1WlRDclQrUFdoTUdXdXk1MW9GNmFLS21RYXJDcFk3UTU1ClNxejVjTmFVZUhnRitkckFsdkM2SmhOTDNUbElPWUNnSENFWWM0RUNnWUVBdlU0WmhSOU9DcDFOZk04R3ZSdksKMFBGWkZRYnNnRnc5ZkNoWVBmaWJDNmtmc0RMeWlyMzE0OEtkc0tMZFRwNnBIUHVhS1FMc2JVZ1NZZ2wwNGxMSAowVHJlRDYwQkY1K0xZRmpMQjBKaEp0UlR2ODA3YVkyMDdVdENGUjNxbWVmUFJLUWRETkluZnJCY083SWgvQ0VoCmZqMlY2RmdzNExSR2dYSUhJMnhWU09FQ2dZQUVQTTltaEFyR3Q3YmFHelVTN2RxeDVJaUVUaVBwR0YxSk8vQWMKOWlUenRBbUpFOCtFbXdEazlEUlY3NzFPaUZLNDVsZmE2c3JvQUluZUp5d0RWTitvV09ZY0lBdUVhSXQ4OW5SbgpaVitvT08rRUhtRjdYdFRQaExGbnA3TG5TUjJmazk3OU5DSnNtdkNmWU1nSjRJdjJsVjlKQnBFTjI4K3NZTmRwClpoSTlBUUtCZ0dGdG1mTjBtbFJwL0dPOW1pWmlvUVBvSi9zdlcySHVxTXQ2bXdUUUhYVVJZQnJTb1dqN042UDgKaWk1V2RhS1BqMWR4MkFOVDRTcERXL0lxc2k3eXF4NUI0dXU4Q2JsUUJPSTlwaWM4Q2VBODNBM0lmcDJBaml2SgpZRGR5eFlFQTBlQ1pKTWU1eGVOYW9NZXd5VXY1S2VnU3JWNTNWdmcyYlBoZmZ1SjBTeTY3Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURFVENDQWZtZ0F3SUJBZ0lRUjVzam9lbTY3UnpYMmpxemVMOUE5REFOQmdrcWhraUc5dzBCQVFzRkFEQVQKTVJFd0R3WURWUVFERXdodVoybHVlQzFqWVRBZUZ3MHlOVEF4TURNeE9ETTFNak5hRncweU5qQXhNRE14T0RNMQpNak5hTUJNeEVUQVBCZ05WQkFNVENHNW5hVzU0TFdOaE1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBCk1JSUJDZ0tDQVFFQXZIc2FwSE5wRWU0M0RXMzU1NWtGSHVpcEVRWFk3OG83dVgycXpzMnVJUzJjTGY2c0dRNmwKMmlseCtsdHV1Zyt3REtHTERSUk50ejJnelNtOXhlVEN6WVUzdE8yTTQvOXBnT3pkV0VCV3E5bUgxaVcyeVJ6WApERXhESnpkZXd4TDBRRVRrWGJydmVDandGY1JUeTFnbFJTT0l3OXBvSzVwakV5WklzYW1GOWFqU0l2REVtNE8vCjlqNmdweFlRckdtcU1kZkh4dTEvNGVWcFA4TFV5ZVRnMm11cVBBQ2RUSktvbmZ0YTdMMjIxYzhUUTQ4dzhWYmYKelRuMCs2NjRuV0J5NW5tV0RvWGRnSGh3dmV3Y2hsVlBqV0ljREttM2JPTjFOUDlCQWI5alRxRjVNZC96U3JXUQpBaTZUR0t6RW5KVldrMTRySmI4K0IrT0o3b2kzNks5YVBRSURBUUFCbzJFd1h6QU9CZ05WSFE4QkFmOEVCQU1DCkFxUXdIUVlEVlIwbEJCWXdGQVlJS3dZQkJRVUhBd0VHQ0NzR0FRVUZCd01DTUE4R0ExVWRFd0VCL3dRRk1BTUIKQWY4d0hRWURWUjBPQkJZRUZKWTNiNkc4T0lpOEROVnc5eEVOcTVxNUpDOHNNQTBHQ1NxR1NJYjNEUUVCQ3dVQQpBNElCQVFCdGowRjhQbW9UbTFVSDNFaVk4bDFMRnFUbTlFQW5hUENpT2NqYkI5dkxjcG1xT1p2M3NWbFRReWpzCmNVQlVqWU5qVFgxZ3Z5aTliRGVHL3VSWVNMQStrUFZITjJNd1ZtZzBPcjVySEZaL0dEMExmbVlPaHBjVExldzIKVTZZWGhvdHhjaUdxTkdYemNoQ3Q4ZDMyNytKWjRCbDN1c0tOOXpmUzRWK29Td3NqUFZnbXFGN05VNWFDOERzMQpCRjNEMlZZdjAvaW9VK3NXSEx5UUJGclJybkVOK0dmdGJvOFlkMHhzTUpibTRVRDNyR2FZVFhPVktXb0pDM2VHCmk5aFU3d0M1VFVwNXNkTnB4RENwN0NuUlN4cndVd0NwTm5LTFArdFpvOGozOHJYTUVhUTVCQVh1WnF4ajVoN1kKR2FUV3FvSDNSNzNKWGZpN0ZDeGo2TmwxUHc3eQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+---
+# Source: kargo-multi/charts/redis/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kargo-multi-redis
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+type: Opaque
+data:
+  redis-password: "YVBSeGkxRUM4cA=="
+---
+# Source: kargo-multi/charts/redis/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kargo-multi-redis-configuration
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+data:
+  redis.conf: |-
+    # User-supplied common configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+    # End of common configuration
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of master configuration
+  replica.conf: |-
+    dir /data
+    # User-supplied replica configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of replica configuration
+---
+# Source: kargo-multi/charts/redis/templates/health-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kargo-multi-redis-health
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+data:
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ] && [ "$responseFirstWord" != "MASTERDOWN" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+---
+# Source: kargo-multi/charts/redis/templates/scripts-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kargo-multi-redis-scripts
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+data:
+  start-master.sh: |
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/master.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+    exec redis-server "${ARGS[@]}"
+  start-replica.sh: |
+    #!/bin/bash
+
+    get_port() {
+        hostname="$1"
+        type="$2"
+
+        port_var=$(echo "${hostname^^}_SERVICE_PORT_$type" | sed "s/-/_/g")
+        port=${!port_var}
+
+        if [ -z "$port" ]; then
+            case $type in
+                "SENTINEL")
+                    echo 26379
+                    ;;
+                "REDIS")
+                    echo 6379
+                    ;;
+            esac
+        else
+            echo $port
+        fi
+    }
+
+    get_full_hostname() {
+        hostname="$1"
+        full_hostname="${hostname}.${HEADLESS_SERVICE}"
+        echo "${full_hostname}"
+    }
+
+    REDISPORT=$(get_port "$HOSTNAME" "REDIS")
+    HEADLESS_SERVICE="kargo-multi-redis-headless.kargo-demo.svc.cluster.local"
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/replica.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/replica.conf /opt/bitnami/redis/etc/replica.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+
+    echo "" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-port $REDISPORT" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/bitnami/redis/etc/replica.conf
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--replicaof" "${REDIS_MASTER_HOST}" "${REDIS_MASTER_PORT_NUMBER}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_MASTER_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
+    exec redis-server "${ARGS[@]}"
+---
+# Source: kargo-multi/charts/nginx/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kargo-multi-nginx
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: 1.27.2
+    helm.sh/chart: nginx-18.2.5
+  annotations:
+spec:
+  type: LoadBalancer
+  sessionAffinity: None
+  externalTrafficPolicy: "Cluster"
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: https
+      port: 443
+      targetPort: https
+  selector:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/name: nginx
+---
+# Source: kargo-multi/charts/redis/templates/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kargo-multi-redis-headless
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/name: redis
+---
+# Source: kargo-multi/charts/redis/templates/master/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kargo-multi-redis-master
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+    app.kubernetes.io/component: master
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: master
+---
+# Source: kargo-multi/charts/redis/templates/replicas/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kargo-multi-redis-replicas
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+    app.kubernetes.io/component: replica
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: replica
+---
+# Source: kargo-multi/charts/nginx/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kargo-multi-nginx
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/version: 1.27.2
+    helm.sh/chart: nginx-18.2.5
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: nginx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: kargo-multi
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/version: 1.27.2
+        helm.sh/chart: nginx-18.2.5
+      annotations:
+    spec:
+      
+      shareProcessNamespace: false
+      serviceAccountName: kargo-multi-nginx
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: kargo-multi
+                    app.kubernetes.io/name: nginx
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      hostNetwork: false
+      hostIPC: false
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      initContainers:
+        - name: preserve-logs-symlinks
+          image: docker.io/bitnami/nginx:1.27.2-debian-12-r1
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              #!/bin/bash
+              . /opt/bitnami/scripts/libfs.sh
+              # We copy the logs folder because it has symlinks to stdout and stderr
+              if ! is_dir_empty /opt/bitnami/nginx/logs; then
+                cp -r /opt/bitnami/nginx/logs /emptydir/app-logs-dir
+              fi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /emptydir
+      containers:
+        - name: nginx
+          image: docker.io/bitnami/nginx:1.27.2-debian-12-r1
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: NGINX_HTTP_PORT_NUMBER
+              value: "8080"
+            - name: NGINX_HTTPS_PORT_NUMBER
+              value: "8443"
+          envFrom:
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: https
+              containerPort: 8443
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: http
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+            httpGet:
+              path: /
+              port: http
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/nginx/conf
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/nginx/logs
+              subPath: app-logs-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/nginx/tmp
+              subPath: app-tmp-dir
+            - name: certificate
+              mountPath: /certs
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: certificate
+          secret:
+            secretName: kargo-multi-nginx-tls
+            items:
+              - key: tls.crt
+                path: server.crt
+              - key: tls.key
+                path: server.key
+---
+# Source: kargo-multi/charts/redis/templates/master/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kargo-multi-redis-master
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+    app.kubernetes.io/component: master
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: master
+  serviceName: kargo-multi-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: kargo-multi
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/version: 7.4.1
+        helm.sh/chart: redis-20.6.1
+        app.kubernetes.io/component: master
+      annotations:
+        checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
+        checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
+        checksum/scripts: c716209c15e93ac955798b71ec7c22992bd5d76c1149e205799257af2a73e28f
+        checksum/secret: 7a771ae6fa14a374151b8094fc8d8c4d49456bc49d748fb5619640ca18ca44d9
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: kargo-multi-redis-master
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: kargo-multi
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/component: master
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      enableServiceLinks: true
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:7.4.1-debian-12-r3
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-master.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: master
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kargo-multi-redis
+                  key: redis-password
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            # One second longer than command timeout should prevent generation of zombie processes.
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local.sh 1
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: empty-dir
+              mountPath: /opt/bitnami/redis/etc/
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: kargo-multi-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: kargo-multi-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: kargo-multi-redis-configuration
+        - name: empty-dir
+          emptyDir: {}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/instance: kargo-multi
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: master
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: kargo-multi/charts/redis/templates/replicas/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kargo-multi-redis-replicas
+  namespace: "kargo-demo"
+  labels:
+    app.kubernetes.io/instance: kargo-multi
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.4.1
+    helm.sh/chart: redis-20.6.1
+    app.kubernetes.io/component: replica
+spec:
+  replicas: 3
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: kargo-multi
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: replica
+  serviceName: kargo-multi-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: kargo-multi
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/version: 7.4.1
+        helm.sh/chart: redis-20.6.1
+        app.kubernetes.io/component: replica
+      annotations:
+        checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
+        checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
+        checksum/scripts: c716209c15e93ac955798b71ec7c22992bd5d76c1149e205799257af2a73e28f
+        checksum/secret: 4f51a4c195ea51539687fa3fb0021a97b379f40f487829233da28b8969b9efcb
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: kargo-multi-redis-replica
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: kargo-multi
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/component: replica
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      enableServiceLinks: true
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:7.4.1-debian-12-r3
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-replica.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: replica
+            - name: REDIS_MASTER_HOST
+              value: kargo-multi-redis-master-0.kargo-multi-redis-headless.kargo-demo.svc.cluster.local
+            - name: REDIS_MASTER_PORT_NUMBER
+              value: "6379"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kargo-multi-redis
+                  key: redis-password
+            - name: REDIS_MASTER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kargo-multi-redis
+                  key: redis-password
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          startupProbe:
+            failureThreshold: 22
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: redis
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local_and_master.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local_and_master.sh 1
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: empty-dir
+              mountPath: /opt/bitnami/redis/etc
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: kargo-multi-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: kargo-multi-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: kargo-multi-redis-configuration
+        - name: empty-dir
+          emptyDir: {}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/instance: kargo-multi
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: replica
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
