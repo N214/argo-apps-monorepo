@@ -1,8 +1,0 @@
-redis:
-  enabled: true
-  pdb:
-    create: false
-nginx:
-  enabled: true
-  pdb:
-    create: false

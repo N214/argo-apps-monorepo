@@ -1,1 +1,0 @@
-Helm Manifest for kargo deps deployment
