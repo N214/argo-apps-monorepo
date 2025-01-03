@@ -68,7 +68,7 @@ metadata:
     helm.sh/chart: redis-20.6.1
 type: Opaque
 data:
-  redis-password: "VEsxTE9sQXlXUQ=="
+  redis-password: "b0RHUWE0WnRoWA=="
 ---
 # Source: kargo-multi/charts/redis/templates/configmap.yaml
 apiVersion: v1
@@ -405,7 +405,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: c716209c15e93ac955798b71ec7c22992bd5d76c1149e205799257af2a73e28f
-        checksum/secret: 7b572ff687b5b347f1a1f0a2f1683250dd24ab7400e85a99bb86d4665c48c2a0
+        checksum/secret: bb8f6f5ad46c2e869f74d018be2d3bb6dc9f3201f14dbb8c2a74ebff1695f97b
     spec:
       
       securityContext:
@@ -586,7 +586,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: c716209c15e93ac955798b71ec7c22992bd5d76c1149e205799257af2a73e28f
-        checksum/secret: c613ae78f1101ae0b6bace0afeb9efab4482ea8f37a82523ff5fb191a18c8497
+        checksum/secret: 44d3c5d67cb883111f8424901d0004c16d07ecc97d02cd2b3d26e611b2f58378
     spec:
       
       securityContext:
