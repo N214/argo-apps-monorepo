@@ -3,6 +3,6 @@ redis:
   pdb:
     create: false
 nginx:
-  enabled: false
+  enabled: true
   pdb:
-    create: true
+    create: false
