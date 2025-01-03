@@ -1,31 +1,4 @@
 ---
-# Source: kargo-multi/charts/nginx/templates/networkpolicy.yaml
-kind: NetworkPolicy
-apiVersion: networking.k8s.io/v1
-metadata:
-  name: kargo-multi-nginx
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/version: 1.27.2
-    helm.sh/chart: nginx-18.2.5
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/instance: kargo-multi
-      app.kubernetes.io/name: nginx
-  policyTypes:
-    - Ingress
-    - Egress
-  egress:
-    - {}
-  ingress:
-    - ports:
-        - port: 8080
-        - port: 8443
----
 # Source: kargo-multi/charts/redis/templates/networkpolicy.yaml
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
@@ -52,81 +25,6 @@ spec:
     # Allow inbound connections
     - ports:
         - port: 6379
----
-# Source: kargo-multi/charts/nginx/templates/pdb.yaml
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: kargo-multi-nginx
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/version: 1.27.2
-    helm.sh/chart: nginx-18.2.5
-spec:
-  maxUnavailable: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/instance: kargo-multi
-      app.kubernetes.io/name: nginx
----
-# Source: kargo-multi/charts/redis/templates/master/pdb.yaml
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: kargo-multi-redis-master
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: redis
-    app.kubernetes.io/version: 7.4.1
-    helm.sh/chart: redis-20.6.1
-    app.kubernetes.io/component: master
-spec:
-  maxUnavailable: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/instance: kargo-multi
-      app.kubernetes.io/name: redis
-      app.kubernetes.io/component: master
----
-# Source: kargo-multi/charts/redis/templates/replicas/pdb.yaml
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: kargo-multi-redis-replicas
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: redis
-    app.kubernetes.io/version: 7.4.1
-    helm.sh/chart: redis-20.6.1
-    app.kubernetes.io/component: replica
-spec:
-  maxUnavailable: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/instance: kargo-multi
-      app.kubernetes.io/name: redis
-      app.kubernetes.io/component: replica
----
-# Source: kargo-multi/charts/nginx/templates/serviceaccount.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: kargo-multi-nginx
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/version: 1.27.2
-    helm.sh/chart: nginx-18.2.5
-automountServiceAccountToken: false
 ---
 # Source: kargo-multi/charts/redis/templates/master/serviceaccount.yaml
 apiVersion: v1
@@ -156,24 +54,6 @@ metadata:
     app.kubernetes.io/version: 7.4.1
     helm.sh/chart: redis-20.6.1
 ---
-# Source: kargo-multi/charts/nginx/templates/tls-secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: kargo-multi-nginx-tls
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/version: 1.27.2
-    helm.sh/chart: nginx-18.2.5
-type: kubernetes.io/tls
-data:
-  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURyVENDQXBXZ0F3SUJBZ0lSQU8xNnlhdzdtTWpUYlpucFJiWXNUTW93RFFZSktvWklodmNOQVFFTEJRQXcKRXpFUk1BOEdBMVVFQXhNSWJtZHBibmd0WTJFd0hoY05NalV3TVRBek1UZzBNakF4V2hjTk1qWXdNVEF6TVRnMApNakF4V2pBY01Sb3dHQVlEVlFRREV4RnJZWEpuYnkxdGRXeDBhUzF1WjJsdWVEQ0NBU0l3RFFZSktvWklodmNOCkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFKaFRDR2VvOVJLQzRuY1p2NGRGdjg5ejZyeEdVenZSc1NFYzNCVHMKd0hFMDQxcjR2aUZkd096RFpVVk9OVnREWWFVSVBsL1VIakZSUFJiSVp3RVNEUnFNSCtIT3g1NytJdG5CeDBUYgptU3NPVHkzakZLNFhYQ09CNE9aUDFvTmw5TVo2RlRKV2I4b2M3WElKZEllbE1nZFR2OXdUNDBBVVowZnJ3T2d6CmJmbEJNZUpPeEhoSVF1YWEvUHRMejFmSkkyNmwvWDR5c0J3YWtkQVFTMG8rWTVLUVB5NGxzNStkTTVkcHUrTkgKcGgxRmV1cG1WVFF3dWF6dENVbzYrbDhNVi9OT0x3aVhLTVB1ZFBRa1BxS1lRb1RuUGYxcWF4Y0FlbjNoa01waQpGZ2x2RkVMK3dremlxbjVjZmpFOUxXTStZK2xsRHFVWE82Rm1pb1VtekVhNUt3RUNBd0VBQWFPQjhqQ0I3ekFPCkJnTlZIUThCQWY4RUJBTUNCYUF3SFFZRFZSMGxCQll3RkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01Bd0cKQTFVZEV3RUIvd1FDTUFBd0h3WURWUjBqQkJnd0ZvQVU4S3ljaVBqd3hTa0VMZFIrOWd0YkZUd3plUDh3Z1k0RwpBMVVkRVFTQmhqQ0JnNElSYTJGeVoyOHRiWFZzZEdrdGJtZHBibmlDSEd0aGNtZHZMVzExYkhScExXNW5hVzU0CkxtdGhjbWR2TFdSbGJXK0NJR3RoY21kdkxXMTFiSFJwTFc1bmFXNTRMbXRoY21kdkxXUmxiVzh1YzNaamdpNXIKWVhKbmJ5MXRkV3gwYVMxdVoybHVlQzVyWVhKbmJ5MWtaVzF2TG5OMll5NWpiSFZ6ZEdWeUxteHZZMkZzTUEwRwpDU3FHU0liM0RRRUJDd1VBQTRJQkFRQjcxb3R1OEx5cFNMNE1ZQkJ6SFVyQWR0RWwrZFc4bTB0WmhLWE9NM0xXClczbFhXNWtrclN1eDRuaHpwZUp0cU9obTJZQmxwdjZraWtZMTQzMTJaTE1xTWFSNGtWU3BuTTN0VGV2RXlGSXUKek5kZ243VmxkNjNzc2NBUnNMMFdWR1JrUHVyUEJWc3J5QUlRaWsvMkc1TGw1Sm5DNE5JbFZwSlBpTWRSSEVWSApJeVJCVkpEaGRZNklQb3hGZjFHcU1aaFArbDlpREdxYmRHdnd1L3NaR2g4NkhrYVpNUEl1cGM5MkgwQ3EzMTQ0ClNESU9BRHRMRnI2aEViY2pEVXRva04xekQ2cEN1ZUlkMGYwdHpvTEFoOXBIbUVQdS93N1ZEYnJxclVtUy9TR0QKSStCbVQxZ3ZTcjcyV0ZGL0ZtanZ5SHArOWx4RWl5Qkh4Q2pXUm9oR0JjUWIKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
-  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBbUZNSVo2ajFFb0xpZHhtL2gwVy96M1BxdkVaVE85R3hJUnpjRk96QWNUVGpXdmkrCklWM0E3TU5sUlU0MVcwTmhwUWcrWDlRZU1WRTlGc2huQVJJTkdvd2Y0YzdIbnY0aTJjSEhSTnVaS3c1UExlTVUKcmhkY0k0SGc1ay9XZzJYMHhub1ZNbFp2eWh6dGNnbDBoNlV5QjFPLzNCUGpRQlJuUit2QTZETnQrVUV4NGs3RQplRWhDNXByOCswdlBWOGtqYnFYOWZqS3dIQnFSMEJCTFNqNWprcEEvTGlXem41MHpsMm03NDBlbUhVVjY2bVpWCk5EQzVyTzBKU2pyNlh3eFg4MDR2Q0pjb3crNTA5Q1Erb3BoQ2hPYzkvV3ByRndCNmZlR1F5bUlXQ1c4VVF2N0MKVE9LcWZseCtNVDB0WXo1ajZXVU9wUmM3b1dhS2hTYk1ScmtyQVFJREFRQUJBb0lCQUM4TGpnLzk5ZHNHdzQwSApUY2tvdUtvSTRobk9Hb3ppSWJQWlp2dXJkM0EvWm16RllHdUx1amNsemhST3FGb01nSTdvOGVMRTc2Skp0ZlZnClpiZkY3SGdqaVFGRHpSR0U2aHlaSmNOVms0UGh3b0NvbnMxNTk0SWI3ZXNVQTJ2SHhJYThVK21kR3Ard3VZRTcKL0ZxY29jdnppTkVlNzFQdU9VdlVPMXM3N3g1SkUzR1lTMjkyZDVaTWw2c045aTUwWCtCK29BckpqR1RKbEV2bApwbWZLMFhTMUdqbTk0elZWVk9wMmpSVXNQdnp5R0Z4U2hmdy9JS3ZUZCtyMmdDNGNuKzBhSzVRSjVuS1czZjRQClEvVWpNN3A2YytpSVNMdHhIeGpqWUNBNHIyK0N4VE01NS9hZnFWdFBUTHBKZFZjcjJTOGxSN0tTUnRYaEtrbXUKSjhWMEtiRUNnWUVBeUkwbUExUTFzTTFGYnVwSUlCSzI2RTBrdUNZbUpTVm1rWW1FWEFLUHhJdlZmdlpyZnd0MgpyRUVqcEd1b0FYdnhVZG9GSGZiUklWWUZ3dy9sNzlHRmVTWllUUlV1T3MxejEvdUpXV2pmQlJwb09JanJYSVRNCkwxb09jWm1PYzdDWno1aXF3L2lEb0h4VnI3WGVZdjJxUlRGTGJMLzBwQkxhcjVUMFNMZFZxRlVDZ1lFQXduQnIKQndqYkxIREhCRmF1bWUyVXJKR2VtMFE1QmFxYVZvbnZCbGY0S2ZEYTBEZ0hpOHN5MjE3SG05cG82amIvMWNMNgpXVmN2akVMNEV0WFJBdHI0ZFRqUlpmbjN5bWQ3TTBOd0NGRkZlbWdnK0FsQlFlWUZrUVNOeVp3SzhrbzhNckZ5CmhicGcvTEM3Y0diVUJxRWJ3czhqWDM4L0ZQZnAxbC9iZXViRmsvMENnWUEzMkIzeXBWdEIvUmJOZU0xV3FQOW4KbGp1WVQzOGxydEZ0eXpZaEROR05zRVpsMFNaRHZTUnhlTDM5QmNGRmtJYTAvUm1acTJXMmU2YWxGMk0yc1VnUwpZUndMY3M5cHJsWUltVkU0cFZ3Y3Bxckl1MCtXZHFBSXUzSDBMZ2NkcmRwV2xUTlAySDZHakxpcmNlQVgvbnlRClFkYTMxSWZCdkVKS3pCWnR2U2RMOVFLQmdETGFHK08zR1R0Q000cWE4UWNvNzUxQ2FHekxKdTZvYzd6MlRpRW0KbUt5L1pUclhySUdQSHpub1MrUWk5eFZxVlBhZkM4S1ozc0djTWkwYTVwTU1tYlp1cWJVMTd1eHNxL2Y0UnpDbApzTG9XeWFpVkl4QU5ESitreFVCWkl6UEMzb09UalJRVWJwRW4xNTNLQnVIRStQRzJJdFl5L1ZpS2pnbVhBRnZnClJ3UXhBb0dCQUpCdCt3ZXdCUkNIMG9GSkk1ZXVvQktLbFloeE1MUDZyZkkvQm5TRy84VGpnK0EwOGtxdXlxNEIKTnQyQXUrZkVQQ2lNdTlMdkhNVU12VUpZb05FZ3Z3ZmxNN0lMcmhBSThveU9OQzRZQ1VsOGJGd2RESEh2K29JNAo2NEtxcnZPTFBFbXBlaHdtWGszMEUwWU1tTFVLbXhpVUhOOVpSWjhhUDJoUUIrYWpWbXpqCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
-  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURFakNDQWZxZ0F3SUJBZ0lSQVBQTU9CdHFEQWJRZ3VyNnZ4WFJHNUF3RFFZSktvWklodmNOQVFFTEJRQXcKRXpFUk1BOEdBMVVFQXhNSWJtZHBibmd0WTJFd0hoY05NalV3TVRBek1UZzBNakF3V2hjTk1qWXdNVEF6TVRnMApNakF3V2pBVE1SRXdEd1lEVlFRREV3aHVaMmx1ZUMxallUQ0NBU0l3RFFZSktvWklodmNOQVFFQkJRQURnZ0VQCkFEQ0NBUW9DZ2dFQkFMM0hZYnpmZno4Q0ZGaGFwNm1rbDJSd2FTN1JyMUtMMndoMU4rMjdtSi9YWThnazFlUU8KbXpweUVMSTNjY1U3L2RNMnFLWkRtY2NHZ1dRS1ZlNEdPRmhKa20rVXNhYmZoRC9hUHgwdHZvSGtnTnpYMzNXKwp4OXZQSi81clkzais0VEVKNFNJVngxZ3l2TzhaQm96NXFaOFk2ZlE3bGpueXJBdHlmb3FFVElBbUNIam1aU0xpCnplTG5YdHRCLzFHVWs0RktmUWQ0M1FUaXdhUzNPNGxpazhZZ21KOFVYT3Q4Z21PQkpIeklrTTVyeWYvRHhIcU8KVUcra24zK3cyTXNOcGVvblRheW5sTStGdldtandSaUIxekI3VnN0ZXV3SmdMaWpZN3FNWDhOSW82a0FuRjY1cwpKVys4NGZiKytQMjdCTEh0QkRoZU1wMjlrcHdNTDJSVjE3Y0NBd0VBQWFOaE1GOHdEZ1lEVlIwUEFRSC9CQVFECkFnS2tNQjBHQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUZCUWNEQWpBUEJnTlZIUk1CQWY4RUJUQUQKQVFIL01CMEdBMVVkRGdRV0JCVHdySnlJK1BERktRUXQxSDcyQzFzVlBETjQvekFOQmdrcWhraUc5dzBCQVFzRgpBQU9DQVFFQWVtNS9oUS9INVJTTVh1Q1A1Um1Bd3hyZWlCQVZTSzVrY09ic0JjaUNiVlZTNDRRQmdLc1VLMTd6CjVSSy9VTkI1LzlsOFVXLy94eEFqUW00OTFPTURnSlh2V2owdkQ0d3hDVUk4VDMvL2Z4TEJDd3Z3Y21STW03bXMKS0ZkWHJzWVJVdTVTaFRNNFQ2cVBMSTk0a2RxWDZNZ1Fmbm9TSS9EWHQvYit5eUR0akRlTnpHUkZBRmpVcEhFdwp3NnY4M1ZUdEtBNjJSanZwZHlKVzlEUWROaFZPeWFCOUQrekFlMVZacFJ0NDFnMk82OTl0eHIwZk9DejZjMUpECkF3RXVzN3U4UGpvN2dkOHVlSDF4SmRVb0I5R20xL1hLeTUwVjAxODBLU2FHRitidkpFQm81TzdwUVVXQmJnMGkKMjIzTzNFb1lEdWc5M2tiSVNlSEUrd0pEMU5HS1FRPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
----
 # Source: kargo-multi/charts/redis/templates/secret.yaml
 apiVersion: v1
 kind: Secret
@@ -188,7 +68,7 @@ metadata:
     helm.sh/chart: redis-20.6.1
 type: Opaque
 data:
-  redis-password: "TGRPZFdjd0xDVw=="
+  redis-password: "VEsxTE9sQXlXUQ=="
 ---
 # Source: kargo-multi/charts/redis/templates/configmap.yaml
 apiVersion: v1
@@ -413,34 +293,6 @@ data:
     ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
     exec redis-server "${ARGS[@]}"
 ---
-# Source: kargo-multi/charts/nginx/templates/svc.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: kargo-multi-nginx
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/version: 1.27.2
-    helm.sh/chart: nginx-18.2.5
-  annotations:
-spec:
-  type: LoadBalancer
-  sessionAffinity: None
-  externalTrafficPolicy: "Cluster"
-  ports:
-    - name: http
-      port: 80
-      targetPort: http
-    - name: https
-      port: 443
-      targetPort: https
-  selector:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/name: nginx
----
 # Source: kargo-multi/charts/redis/templates/headless-svc.yaml
 apiVersion: v1
 kind: Service
@@ -516,186 +368,6 @@ spec:
     app.kubernetes.io/name: redis
     app.kubernetes.io/component: replica
 ---
-# Source: kargo-multi/charts/nginx/templates/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kargo-multi-nginx
-  namespace: "kargo-demo"
-  labels:
-    app.kubernetes.io/instance: kargo-multi
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: nginx
-    app.kubernetes.io/version: 1.27.2
-    helm.sh/chart: nginx-18.2.5
-spec:
-  replicas: 1
-  revisionHistoryLimit: 10
-  strategy:
-    rollingUpdate: {}
-    type: RollingUpdate
-  selector:
-    matchLabels:
-      app.kubernetes.io/instance: kargo-multi
-      app.kubernetes.io/name: nginx
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/instance: kargo-multi
-        app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: nginx
-        app.kubernetes.io/version: 1.27.2
-        helm.sh/chart: nginx-18.2.5
-      annotations:
-    spec:
-      
-      shareProcessNamespace: false
-      serviceAccountName: kargo-multi-nginx
-      automountServiceAccountToken: false
-      affinity:
-        podAffinity:
-          
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - podAffinityTerm:
-                labelSelector:
-                  matchLabels:
-                    app.kubernetes.io/instance: kargo-multi
-                    app.kubernetes.io/name: nginx
-                topologyKey: kubernetes.io/hostname
-              weight: 1
-        nodeAffinity:
-          
-      hostNetwork: false
-      hostIPC: false
-      securityContext:
-        fsGroup: 1001
-        fsGroupChangePolicy: Always
-        supplementalGroups: []
-        sysctls: []
-      initContainers:
-        - name: preserve-logs-symlinks
-          image: docker.io/bitnami/nginx:1.27.2-debian-12-r1
-          imagePullPolicy: "IfNotPresent"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
-            runAsGroup: 1001
-            runAsNonRoot: true
-            runAsUser: 1001
-            seLinuxOptions: {}
-            seccompProfile:
-              type: RuntimeDefault
-          resources:
-            limits:
-              cpu: 150m
-              ephemeral-storage: 2Gi
-              memory: 192Mi
-            requests:
-              cpu: 100m
-              ephemeral-storage: 50Mi
-              memory: 128Mi
-          command:
-            - /bin/bash
-          args:
-            - -ec
-            - |
-              #!/bin/bash
-              . /opt/bitnami/scripts/libfs.sh
-              # We copy the logs folder because it has symlinks to stdout and stderr
-              if ! is_dir_empty /opt/bitnami/nginx/logs; then
-                cp -r /opt/bitnami/nginx/logs /emptydir/app-logs-dir
-              fi
-          volumeMounts:
-            - name: empty-dir
-              mountPath: /emptydir
-      containers:
-        - name: nginx
-          image: docker.io/bitnami/nginx:1.27.2-debian-12-r1
-          imagePullPolicy: "IfNotPresent"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
-            runAsGroup: 1001
-            runAsNonRoot: true
-            runAsUser: 1001
-            seLinuxOptions: {}
-            seccompProfile:
-              type: RuntimeDefault
-          env:
-            - name: BITNAMI_DEBUG
-              value: "false"
-            - name: NGINX_HTTP_PORT_NUMBER
-              value: "8080"
-            - name: NGINX_HTTPS_PORT_NUMBER
-              value: "8443"
-          envFrom:
-          ports:
-            - name: http
-              containerPort: 8080
-            - name: https
-              containerPort: 8443
-          livenessProbe:
-            failureThreshold: 6
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-            tcpSocket:
-              port: http
-          readinessProbe:
-            failureThreshold: 3
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            successThreshold: 1
-            timeoutSeconds: 3
-            httpGet:
-              path: /
-              port: http
-          resources:
-            limits:
-              cpu: 150m
-              ephemeral-storage: 2Gi
-              memory: 192Mi
-            requests:
-              cpu: 100m
-              ephemeral-storage: 50Mi
-              memory: 128Mi
-          volumeMounts:
-            - name: empty-dir
-              mountPath: /tmp
-              subPath: tmp-dir
-            - name: empty-dir
-              mountPath: /opt/bitnami/nginx/conf
-              subPath: app-conf-dir
-            - name: empty-dir
-              mountPath: /opt/bitnami/nginx/logs
-              subPath: app-logs-dir
-            - name: empty-dir
-              mountPath: /opt/bitnami/nginx/tmp
-              subPath: app-tmp-dir
-            - name: certificate
-              mountPath: /certs
-      volumes:
-        - name: empty-dir
-          emptyDir: {}
-        - name: certificate
-          secret:
-            secretName: kargo-multi-nginx-tls
-            items:
-              - key: tls.crt
-                path: server.crt
-              - key: tls.key
-                path: server.key
----
 # Source: kargo-multi/charts/redis/templates/master/application.yaml
 apiVersion: apps/v1
 kind: StatefulSet
@@ -733,7 +405,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: c716209c15e93ac955798b71ec7c22992bd5d76c1149e205799257af2a73e28f
-        checksum/secret: 076592faf9ba873baf0bdefcaf83344b8ae7e06ac97295a2afcedd05afba862e
+        checksum/secret: 7b572ff687b5b347f1a1f0a2f1683250dd24ab7400e85a99bb86d4665c48c2a0
     spec:
       
       securityContext:
@@ -914,7 +586,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: c716209c15e93ac955798b71ec7c22992bd5d76c1149e205799257af2a73e28f
-        checksum/secret: 8aee517078ce41e13b217267d1ff51293fea4f4e79ad44bf8908a3986cbc05fd
+        checksum/secret: c613ae78f1101ae0b6bace0afeb9efab4482ea8f37a82523ff5fb191a18c8497
     spec:
       
       securityContext:
