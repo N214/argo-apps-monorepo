@@ -1,0 +1,16 @@
+apiVersion: v2
+name: kargo-multi
+type: application
+version: 0.1.0
+
+dependencies:
+- name: redis
+  version: 20.6.1
+  repository: https://charts.bitnami.com/bitnami
+  alias: redis
+  condition: redis.enabled
+- name: nginx
+  version: 18.3.2
+  repository: https://charts.bitnami.com/bitnami
+  alias: nginx
+  condition: nginx.enabled
